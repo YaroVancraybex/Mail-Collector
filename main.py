@@ -1,5 +1,6 @@
 import requests
 import re
+import uuid
 from bs4 import BeautifulSoup
 
 
@@ -25,7 +26,11 @@ class mailFinder:
 
 
 	def collectMailAdresses(self, link):
-		page = BeautifulSoup(requests.get(link, headers=self.headers).text, "lxml")
+		try:
+			page = BeautifulSoup(requests.get(link, headers=self.headers).text, "lxml")
+		except:
+			return []
+
 		mailAdresses = []
 		regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
 
@@ -40,10 +45,12 @@ class mailFinder:
 
 		return mailAdresses
 
+
 query = input('Google query: ')
 pageLimit = input('MAX amount of Google pages: ')
 _mailFinder = mailFinder()
 results = []
+scannedWebsitesCounter = 0
 print('\n')
 
 
@@ -53,9 +60,14 @@ for pageCounter in range(int(pageLimit)):
 	for link in links:
 		collectedMailAdresses = _mailFinder.collectMailAdresses(link=link)
 		results.extend(x for x in collectedMailAdresses if x not in results)
-		print('Page ' + str(pageCounter + 1) + ' | Found ' + str(len(results)) + ' adresses', end="\r")
+		scannedWebsitesCounter += 1
+		print('Page ' + str(pageCounter + 1) + ' | Scanned ' + str(scannedWebsitesCounter) + ' | Found ' + str(len(results)) + ' adresses', end="\r")
 
 
+f = open('results.txt', 'w')
 print('\n\n')
 for result in results:
+	f.write(result + "\n")
 	print(result)
+
+f.close()
