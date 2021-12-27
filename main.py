@@ -11,7 +11,11 @@ class mailFinder:
 
 
 	def googleForLinks(self, query, googlePage):
-		page = BeautifulSoup(requests.get('https://google.com/search?q=' + query + '&start=' + str(googlePage * 10), headers=self.headers).text, "lxml")
+		try:
+			page = BeautifulSoup(requests.get('https://google.com/search?q=' + query + '&start=' + str(googlePage * 10), headers=self.headers, timeout=10).text, "lxml")
+		except:
+			return []
+
 		websites = []
 
 		for result in page.select('.tF2Cxc'):
@@ -41,6 +45,7 @@ pageLimit = input('MAX amount of Google pages: ')
 _mailFinder = mailFinder()
 results = []
 print('\n')
+
 
 for pageCounter in range(int(pageLimit)):
 	links = _mailFinder.googleForLinks(query=query, googlePage=pageCounter)
